@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.vallen.boost"
+    android:versionCode="11"
+    android:versionName="2.9">
+
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="31" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- HUD FPS/suhu melayang di atas game -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- ping (TCP connect ke 1.1.1.1) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- getar singkat pas ping spike -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Auto Boost: hidupkan lagi pemantau game setelah reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Perekam layar: suara mikrofon & audio internal, service rekam, simpan file di Android 8-9 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+
+    <!-- Android 11+: tanpa ini daftar game/app tidak kelihatan -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+        <package android:name="com.mobile.legends" />
+        <package android:name="com.dts.freefireth" />
+        <package android:name="com.dts.freefiremax" />
+    </queries>
+
+    <application
+        android:label="Vallen Boost"
+        android:icon="@drawable/icon_vallen"
+        android:allowBackup="false"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+
+        <!-- configChanges: ganti resolusi/density pas buka game TIDAK boleh bikin activity dibuat ulang (itu yang bikin app "mati" dan HUD hilang) -->
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="density|screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|uiMode|fontScale|locale|layoutDirection">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".BoostService" android:exported="false" />
+
+        <!-- Perekam layar -->
+        <!-- Transparan: tanpa screenOrientation (Android 8.0 menolak activity tembus pandang dengan orientasi tetap) -->
+        <activity android:name=".RecProjectionActivity" android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true" android:taskAffinity="" />
+        <service android:name=".RecorderService" android:exported="false"
+            android:foregroundServiceType="mediaProjection|microphone" />
+        <service android:name=".RecTile" android:label="Rekam layar"
+            android:icon="@drawable/ic_tile" android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name=".BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Tile Quick Settings -->
+        <service android:name=".Tiles$BoostTile" android:label="Vallen Boost"
+            android:icon="@drawable/ic_tile" android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service android:name=".Tiles$RamTile" android:label="Bersihkan RAM"
+            android:icon="@drawable/ic_tile" android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service android:name=".Tiles$ResetTile" android:label="Reset Semua"
+            android:icon="@drawable/ic_tile" android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
